@@ -5,55 +5,55 @@ import math
 
 # Morse Code string translator
 def translate_morse_code_string(code_string):
-	morseAlphabet = {
-		"/": " ",
-		".-": "A",
-		"-.-.": "C",
-		"-...": "B",
-		".": "E",
-		"-..": "D",
-		"--.": "G",
-		"..-.": "F",
-		"..": "I",
-		"....": "H",
-		"-.-": "K",
-		".---": "J",
-		"--":  "M",
-		".-..": "L",
-		"---": "O",
-		"-.": "N",
-		"--.-": "Q",
-		".--.": "P",
-		"...": "S",
-		".-.": "R",
-		"..-": "U",
-		"-": "T",
-		".--": "W",
-		"...-": "V",
-		"-.--": "Y",
-		"-..-": "X",
-		"--..": "Z",
-		".----": "1",
-		"..---": "2",
-		"...--": "3",
-		"....-": "4",
-		".....": "5",
-		"-....": "6",
-		"--...": "7",
-		"---..": "8",
-		"----.": "9",
-		"-----": "0"
-	}
+    morseAlphabet = {
+        "/": " ",
+        ".-": "A",
+        "-.-.": "C",
+        "-...": "B",
+        ".": "E",
+        "-..": "D",
+        "--.": "G",
+        "..-.": "F",
+        "..": "I",
+        "....": "H",
+        "-.-": "K",
+        ".---": "J",
+        "--":  "M",
+        ".-..": "L",
+        "---": "O",
+        "-.": "N",
+        "--.-": "Q",
+        ".--.": "P",
+        "...": "S",
+        ".-.": "R",
+        "..-": "U",
+        "-": "T",
+        ".--": "W",
+        "...-": "V",
+        "-.--": "Y",
+        "-..-": "X",
+        "--..": "Z",
+        ".----": "1",
+        "..---": "2",
+        "...--": "3",
+        "....-": "4",
+        ".....": "5",
+        "-....": "6",
+        "--...": "7",
+        "---..": "8",
+        "----.": "9",
+        "-----": "0"
+    }
 
-	# split on spaces for chars, words delimiters will become spaces
-	characters = code_string.split(" ")
+    # split on spaces for chars, words delimiters will become spaces
+    characters = code_string.split(" ")
 
-	# this next unreadable line does the following:
-	# join together returned values from the morseAlphabet list using the characters list as keys
-	# if the key is not present in morseAlphabet, return a "?" to join into the string instead
-	message = ''.join(morseAlphabet[key] if (key in morseAlphabet) else "?" for key in characters)
+    # this next unreadable line does the following:
+    # join together returned values from the morseAlphabet list using the characters list as keys
+    # if the key is not present in morseAlphabet, return a "?" to join into the string instead
+    message = ''.join(morseAlphabet[key] if (key in morseAlphabet) else "?" for key in characters)
 
-	return message
+    return message
 
 
 # GPIO ports
@@ -85,86 +85,86 @@ message_buffer = "" # storage for whole message, start with blank
 
 try:
 
-	# just so we know something's happening
-	print "LISTENING FOR TAP"
+    # just so we know something's happening
+    print "LISTENING FOR TAP"
 
-	while True:
+    while True:
 
-    		if (GPIO.input(11) == 1): # input detected
+            if (GPIO.input(11) == 1): # input detected
 
-			if (press_time == NULL_TIME): # if this is the initial press
+                if (press_time == NULL_TIME): # if this is the initial press
 
-				press_time = time.time()  # set pressed time
-				release_time = NULL_TIME # clear release time
+                    press_time = time.time()  # set pressed time
+                    release_time = NULL_TIME # clear release time
 
-    		else: # no input detected
+                else: # no input detected
 
-			if (press_time != NULL_TIME): # if this is initial release
+                    if (press_time != NULL_TIME): # if this is initial release
 
-				release_time = time.time() # get the release time
-				# get the press duration in milliseconds
-				press_duration = math.floor((release_time * 1000) - (press_time * 1000))
+                        release_time = time.time() # get the release time
+                        # get the press duration in milliseconds
+                        press_duration = math.floor((release_time * 1000) - (press_time * 1000))
 
-				press_time = NULL_TIME # clear press_time
-				#release_time is used for char/word/message processing
+                        press_time = NULL_TIME # clear press_time
+                        #release_time is used for char/word/message processing
 
-				if (press_duration > KEYPRESS_THRESHOLD):
+                        if (press_duration > KEYPRESS_THRESHOLD):
 
-					if (press_duration < DITDAH_THRESHOLD):
+                            if (press_duration < DITDAH_THRESHOLD):
 
-						char_buffer += "."
-						print "dot"
+                                char_buffer += "."
+                                print "dot"
 
-					if (press_duration > DITDAH_THRESHOLD):
+                            if (press_duration > DITDAH_THRESHOLD):
 
-						char_buffer += "-"
-						print "dash"
+                                char_buffer += "-"
+                                print "dash"
 
-			else: # if we're waiting for input
+            else: # if we're waiting for input
 
-				if (release_time is not NULL_TIME):
+                if (release_time is not NULL_TIME):
 
-					# get the time since the last input was made in ms
-					time_since_last_input = math.floor((time.time() * 1000) - (release_time * 1000))
+                    # get the time since the last input was made in ms
+                    time_since_last_input = math.floor((time.time() * 1000) - (release_time * 1000))
 
-					# if we're in the input zone...
-					if (time_since_last_input < MESSAGE_THRESHOLD):
+                    # if we're in the input zone...
+                    if (time_since_last_input < MESSAGE_THRESHOLD):
 
-						# if we're waiting on a word
-						if (time_since_last_input < WORD_THRESHOLD):
+                        # if we're waiting on a word
+                        if (time_since_last_input < WORD_THRESHOLD):
 
-							# if we're done waiting on a character
-							if (time_since_last_input > CHAR_THRESHOLD) :
+                            # if we're done waiting on a character
+                            if (time_since_last_input > CHAR_THRESHOLD) :
 
-								# if we have a character...
-								if (len(char_buffer) > 0):
+                                # if we have a character...
+                                if (len(char_buffer) > 0):
 
-									# add char to word, add delimeter if necessary, clear char buffer
-									if (len(word_buffer) > 0): word_buffer += CHAR_DELIMETER
-									word_buffer += char_buffer
-									print "CHARACTER ADDED: " + char_buffer
-									char_buffer = ""
+                                    # add char to word, add delimeter if necessary, clear char buffer
+                                    if (len(word_buffer) > 0): word_buffer += CHAR_DELIMETER
+                                    word_buffer += char_buffer
+                                    print "CHARACTER ADDED: " + char_buffer
+                                    char_buffer = ""
 
-						else:
+                        else:
 
-							# if we have a word in process
-							if (len(word_buffer) > 0):
+                            # if we have a word in process
+                            if (len(word_buffer) > 0):
 
-								# add word to message, add delimeter if necessary, clear word buffer
-								if(len(message_buffer) > 0): message_buffer += (WORD_DELIMETER)
+                                # add word to message, add delimeter if necessary, clear word buffer
+                                if(len(message_buffer) > 0): message_buffer += (WORD_DELIMETER)
 
-								message_buffer += word_buffer
-								print "WORD ADDED: " + word_buffer
-								word_buffer = ""
+                                message_buffer += word_buffer
+                                print "WORD ADDED: " + word_buffer
+                                word_buffer = ""
 
-					else:
+                    else:
 
-						# if we have a message
-						if (len(message_buffer) > 0):
+                        # if we have a message
+                        if (len(message_buffer) > 0):
 
-							print "MESSAGE COMPLETED: " + message_buffer
-							print "TEXT: " + translate_morse_code_string(message_buffer)
-							message_buffer = ""
+                            print "MESSAGE COMPLETED: " + message_buffer
+                            print "TEXT: " + translate_morse_code_string(message_buffer)
+                            message_buffer = ""
 
 # quit on a break
 except KeyboardInterrupt:
