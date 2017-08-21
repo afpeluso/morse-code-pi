@@ -115,7 +115,7 @@ try:
                         char_buffer += "."
                         print "dot"
 
-                    elif (press_duration > DITDAH_THRESHOLD):
+                    elif (press_duration >= DITDAH_THRESHOLD):
 
                         char_buffer += "-"
                         print "dash"
