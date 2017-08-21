@@ -90,35 +90,35 @@ try:
 
     while True:
 
-            if (GPIO.input(11) == 1): # input detected
+        if (GPIO.input(11) == 1): # input detected
 
-                if (press_time == NULL_TIME): # if this is the initial press
+            if (press_time == NULL_TIME): # if this is the initial press
 
-                    press_time = time.time()  # set pressed time
-                    release_time = NULL_TIME # clear release time
+                press_time = time.time()  # set pressed time
+                release_time = NULL_TIME # clear release time
 
-                else: # no input detected
+        else: # no input detected
 
-                    if (press_time != NULL_TIME): # if this is initial release
+            if (press_time != NULL_TIME): # if this is initial release
 
-                        release_time = time.time() # get the release time
-                        # get the press duration in milliseconds
-                        press_duration = math.floor((release_time * 1000) - (press_time * 1000))
+                release_time = time.time() # get the release time
+                # get the press duration in milliseconds
+                press_duration = math.floor((release_time * 1000) - (press_time * 1000))
 
-                        press_time = NULL_TIME # clear press_time
-                        #release_time is used for char/word/message processing
+                press_time = NULL_TIME # clear press_time
+                #release_time is used for char/word/message processing
 
-                        if (press_duration > KEYPRESS_THRESHOLD):
+                if (press_duration > KEYPRESS_THRESHOLD):
 
-                            if (press_duration < DITDAH_THRESHOLD):
+                    if (press_duration < DITDAH_THRESHOLD):
 
-                                char_buffer += "."
-                                print "dot"
+                        char_buffer += "."
+                        print "dot"
 
-                            if (press_duration > DITDAH_THRESHOLD):
+                    elif (press_duration > DITDAH_THRESHOLD):
 
-                                char_buffer += "-"
-                                print "dash"
+                        char_buffer += "-"
+                        print "dash"
 
             else: # if we're waiting for input
 
