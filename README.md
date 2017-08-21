@@ -47,6 +47,7 @@ To get it to start listening for input just run the morse.py file.
 ```
 python morse.py
 ```
+KeyboardInterrupt (^C) to stop.
 
 Thresholds for dit, dah, characters, words, etc. are adjustable constants in the script.
 
