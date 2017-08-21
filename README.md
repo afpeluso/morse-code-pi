@@ -34,7 +34,7 @@ This is recorded into a buffer in a common style of dashes, dots, spaces and sla
 
 .... . .-.. .-.. --- / .-- --- .-. .-.. -..
 
-Upon detection of a completed message, this is then translated into english characters using a simple stored Morse Code dictionary in the same format
+Upon detection of a completed message, this is then translated into english characters using a simple stored Morse Code dictionary in the same format.
 
 ## Running This Project
 This project was initially made in Python 2.7.13 since that's what came default on the default Raspbian installation.
@@ -50,7 +50,7 @@ python morse.py
 
 Thresholds for dit, dah, characters, words, etc. are adjustable constants in the script.
 
-###Code Caveat
+### Code Caveat
 I am not the most Pythonic programmer. While it functions at the moment, it's also probably garbage, style-wise. I hope to clean that up soon.
 
 ## Twitter Interface
