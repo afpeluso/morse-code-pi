@@ -8,7 +8,7 @@ The goal of this project is to make that key transmit text to Twitter.
 
 ## Setup
 
-![J38 Telegraph Key with Raspberry Pi Attached](/home/pi/repos/morse-code-pi/images/j38key-pi.jpg  "J38 Telegraph Key with Raspberry Pi Attached")
+![J38 Telegraph Key with Raspberry Pi Attached](./images/j38key-pi.jpg  "J38 Telegraph Key with Raspberry Pi Attached")
 
 ### Telegraph Key
 
