@@ -36,11 +36,30 @@ This is recorded into a buffer in a common style of dashes, dots, spaces and sla
 
 Upon detection of a completed message, this is then translated into english characters using a simple stored Morse Code dictionary in the same format.
 
+### Feedback
+
+I added an LED to the mix on Pin 13 (GPIO27) to display input status without relying on a screen.
+
+- Initialization
+	- 3 Blinks
+- Character Input In Progress
+	- LED on
+- Character Input Complete
+	- LED off
+- Word Input Complete
+	- 1 Blink
+- Message Input Complete
+	- 3 Blinks
+
 ## Running This Project
 This project was initially made in Python 2.7.13 since that's what came default on the default Raspbian installation.
 
 - Python 2.7.13
 - Raspbian 9
+
+Connect your Morse Code key or other button to header Pins 1 and 11.
+
+Connect your LED to Pin 13 and Ground (with appropriate resistor).
 
 To get it to start listening for input just run the morse.py file.
 
