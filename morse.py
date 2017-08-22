@@ -26,6 +26,7 @@ def main():
 
     READ_PIN = cfg['READ_PIN'] # Pin to read key input from
     LED_PIN = cfg['LED_PIN'] # Pin for LED
+    BUZZER_PIN = cfg['BUZZER_PIN'] # Pin for Buzzer
 
     CHAR_DELIMETER = cfg['CHAR_DELIMETER'] # string separator for characters
     WORD_DELIMETER = cfg['WORD_DELIMETER'] # string separator for words
@@ -191,6 +192,7 @@ def translate_morse_code_string(code_string):
 
 # ------------------------------------------------------------------------------
 # Flash LED for Notifications
+# This might work better as PWM...
 
 def led_notify(pin,interval,repetitions):
     for x in range(0,repetitions):

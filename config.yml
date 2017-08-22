@@ -1,5 +1,6 @@
 READ_PIN: 11 # Pin to read key input from
 LED_PIN: 13 # Pin for LED
+BUZZER_PIN: 15 # Pin for Buzzer
 
 CHAR_DELIMETER: " " # string separator for characters
 WORD_DELIMETER: " / " # string separator for words
