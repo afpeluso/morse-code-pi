@@ -55,12 +55,6 @@ def translate_morse_code_string(code_string):
 
     return message
 
-
-# GPIO ports
-
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(11,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
 # Constants
 
 NULL_TIME = time.gmtime(0) # "null" time for timestamps not in use
@@ -69,10 +63,18 @@ CHAR_DELIMETER = " " # string separator for characters
 WORD_DELIMETER = " / " # string separator for words
 
 KEYPRESS_THRESHOLD = 10  # ms, how long a press has to be to be recognized, for bounce
-DITDAH_THRESHOLD = 125 # ms, when a press goes from a dit to a dah
+DITDAH_THRESHOLD = 150 # ms, when a press goes from a dit to a dah
 CHAR_THRESHOLD = 225 # ms, post-release, when to cut off a letter and add it to the message
 WORD_THRESHOLD = 1000 # ms, post-release, when to add a space
 MESSAGE_THRESHOLD = 2500 # ms, post-release, when a message is complete
+
+FLASH_INTERVAL = 0.05 # seconds of flash interval
+INITIALIZE_FLASH = 3 # LED flashes on intialization
+WORD_FLASH = 1 # LED flashes on word completion
+MESSAGE_FLASH = 3 # LED flashes on message completion
+
+READ_PIN = 11 # Pin to read key input from
+LED_PIN = 13 # Pin for LED
 
 # Variables
 
@@ -83,14 +85,30 @@ char_buffer = "" # storage for current character, start with blank
 word_buffer = "" # storage for current word, start with blank
 message_buffer = "" # storage for whole message, start with blank
 
+# GPIO ports
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(READ_PIN,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(LED_PIN,GPIO.OUT)
+
 try:
 
     # just so we know something's happening
     print "LISTENING FOR TAP"
 
+    # flash LED to show that we're initialized
+    for x in range(0,INITIALIZE_FLASH):
+        GPIO.output(LED_PIN,1)
+        time.sleep(FLASH_INTERVAL)
+        GPIO.output(LED_PIN,0)
+        time.sleep(FLASH_INTERVAL)
+
     while True:
 
         if (GPIO.input(11) == 1): # input detected
+
+            # turn on the LED to signify we're in a character
+            GPIO.output(LED_PIN,1)
 
             if (press_time == NULL_TIME): # if this is the initial press
 
@@ -145,6 +163,9 @@ try:
                                     print "CHARACTER ADDED: " + char_buffer
                                     char_buffer = ""
 
+                                    # turn off the LED to signify char completion
+                                    GPIO.output(LED_PIN,0)
+
                         else:
 
                             # if we have a word in process
@@ -157,6 +178,13 @@ try:
                                 print "WORD ADDED: " + word_buffer
                                 word_buffer = ""
 
+                                # flash LED to signify word completion
+                                for x in range(0,WORD_FLASH):
+                                    GPIO.output(LED_PIN,1)
+                                    time.sleep(FLASH_INTERVAL)
+                                    GPIO.output(LED_PIN,0)
+                                    time.sleep(FLASH_INTERVAL)
+
                     else:
 
                         # if we have a message
@@ -165,6 +193,13 @@ try:
                             print "MESSAGE COMPLETED: " + message_buffer
                             print "TEXT: " + translate_morse_code_string(message_buffer)
                             message_buffer = ""
+
+                            # flash LED to notify message completion
+                            for x in range(0,MESSAGE_FLASH):
+                                GPIO.output(LED_PIN,1)
+                                time.sleep(FLASH_INTERVAL)
+                                GPIO.output(LED_PIN,0)
+                                time.sleep(FLASH_INTERVAL)
 
 # quit on a break
 except KeyboardInterrupt:
