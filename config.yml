@@ -1,0 +1,16 @@
+READ_PIN: 11 # Pin to read key input from
+LED_PIN: 13 # Pin for LED
+
+CHAR_DELIMETER: " " # string separator for characters
+WORD_DELIMETER: " / " # string separator for words
+
+KEYPRESS_THRESHOLD: 10  # ms, how long a press has to be to be recognized, for bounce
+DITDAH_THRESHOLD: 150 # ms, when a press goes from a dit to a dah
+CHAR_THRESHOLD: 225 # ms, post-release, when to cut off a letter and add it to the message
+WORD_THRESHOLD: 1000 # ms, post-release, when to add a space
+MESSAGE_THRESHOLD: 2500 # ms, post-release, when a message is complete
+
+FLASH_INTERVAL: 0.05 # seconds of flash interval
+INITIALIZE_FLASH: 3 # LED flashes on intialization
+WORD_FLASH: 1 # LED flashes on word completion
+MESSAGE_FLASH: 3 # LED flashes on message completion

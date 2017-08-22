@@ -1,30 +1,47 @@
 
+#----------------------------------------------------------
+# morse.py
+#
+# Created by Anthony Peluso
+#
+# Program for taking input from a Morse Code key on
+# a Raspberry Pi 3, with some other features
+#
+# https://github.com/afpeluso/morse-code-pi/
+#
+#----------------------------------------------------------
+
 import RPi.GPIO as GPIO
 import time
 import math
+import yaml # PyYaml
 
 def main():
 
+    # load configuration
+    with open("config.yml", 'r') as ymlfile:
+        cfg = yaml.load(ymlfile)
+
     # Constants
 
+    READ_PIN = cfg['READ_PIN'] # Pin to read key input from
+    LED_PIN = cfg['LED_PIN'] # Pin for LED
+
+    CHAR_DELIMETER = cfg['CHAR_DELIMETER'] # string separator for characters
+    WORD_DELIMETER = cfg['WORD_DELIMETER'] # string separator for words
+
+    KEYPRESS_THRESHOLD = cfg['KEYPRESS_THRESHOLD'] # ms, how long a press has to be to be recognized, for bounce
+    DITDAH_THRESHOLD = cfg['DITDAH_THRESHOLD'] # ms, when a press goes from a dit to a dah
+    CHAR_THRESHOLD = cfg['CHAR_THRESHOLD'] # ms, post-release, when to cut off a letter and add it to the message
+    WORD_THRESHOLD = cfg['WORD_THRESHOLD'] # ms, post-release, when to add a space
+    MESSAGE_THRESHOLD = cfg['MESSAGE_THRESHOLD'] # ms, post-release, when a message is complete
+
+    FLASH_INTERVAL = cfg['FLASH_INTERVAL'] # seconds of flash interval
+    INITIALIZE_FLASH = cfg['INITIALIZE_FLASH'] # LED flashes on intialization
+    WORD_FLASH = cfg['WORD_FLASH'] # LED flashes on word completion
+    MESSAGE_FLASH = cfg['MESSAGE_FLASH'] # LED flashes on message completion
+
     NULL_TIME = time.gmtime(0) # "null" time for timestamps not in use
-
-    CHAR_DELIMETER = " " # string separator for characters
-    WORD_DELIMETER = " / " # string separator for words
-
-    KEYPRESS_THRESHOLD = 10  # ms, how long a press has to be to be recognized, for bounce
-    DITDAH_THRESHOLD = 150 # ms, when a press goes from a dit to a dah
-    CHAR_THRESHOLD = 225 # ms, post-release, when to cut off a letter and add it to the message
-    WORD_THRESHOLD = 1000 # ms, post-release, when to add a space
-    MESSAGE_THRESHOLD = 2500 # ms, post-release, when a message is complete
-
-    FLASH_INTERVAL = 0.05 # seconds of flash interval
-    INITIALIZE_FLASH = 3 # LED flashes on intialization
-    WORD_FLASH = 1 # LED flashes on word completion
-    MESSAGE_FLASH = 3 # LED flashes on message completion
-
-    READ_PIN = 11 # Pin to read key input from
-    LED_PIN = 13 # Pin for LED
 
     # Variables
 
@@ -51,7 +68,7 @@ def main():
 
         while True:
 
-            if (GPIO.input(11) == 1): # input detected
+            if (GPIO.input(READ_PIN) == 1): # input detected
 
                 # turn on the LED to signify we're in a character
                 GPIO.output(LED_PIN,1)
