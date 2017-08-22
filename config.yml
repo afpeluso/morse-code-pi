@@ -11,6 +11,6 @@ WORD_THRESHOLD: 1000 # ms, post-release, when to add a space
 MESSAGE_THRESHOLD: 2500 # ms, post-release, when a message is complete
 
 FLASH_INTERVAL: 0.05 # seconds of flash interval
-INITIALIZE_FLASH: 3 # LED flashes on intialization
-WORD_FLASH: 1 # LED flashes on word completion
-MESSAGE_FLASH: 3 # LED flashes on message completion
+INITIALIZE_FLASHES: 3 # LED flashes on intialization
+WORD_FLASHES: 1 # LED flashes on word completion
+MESSAGE_FLASHES: 3 # LED flashes on message completion

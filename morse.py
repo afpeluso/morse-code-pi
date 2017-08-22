@@ -37,9 +37,9 @@ def main():
     MESSAGE_THRESHOLD = cfg['MESSAGE_THRESHOLD'] # ms, post-release, when a message is complete
 
     FLASH_INTERVAL = cfg['FLASH_INTERVAL'] # seconds of flash interval
-    INITIALIZE_FLASH = cfg['INITIALIZE_FLASH'] # LED flashes on intialization
-    WORD_FLASH = cfg['WORD_FLASH'] # LED flashes on word completion
-    MESSAGE_FLASH = cfg['MESSAGE_FLASH'] # LED flashes on message completion
+    INITIALIZE_FLASHES = cfg['INITIALIZE_FLASHES'] # number of LED flashes on intialization
+    WORD_FLASHES = cfg['WORD_FLASHES'] # number of LED flashes on word completion
+    MESSAGE_FLASHES = cfg['MESSAGE_FLASHES'] # number of LED flashes on message completion
 
     NULL_TIME = time.gmtime(0) # "null" time for timestamps not in use
 
@@ -64,7 +64,7 @@ def main():
         print "LISTENING FOR TAP"
 
         # flash LED to show that we're initialized
-        led_notify(LED_PIN, FLASH_INTERVAL, INITIALIZE_FLASH)
+        led_notify(LED_PIN, FLASH_INTERVAL, INITIALIZE_FLASHES)
 
         while True:
 
@@ -142,7 +142,7 @@ def main():
                                     word_buffer = ""
 
                                     # flash LED to signify word completion
-                                    led_notify(LED_PIN, FLASH_INTERVAL, WORD_FLASH)
+                                    led_notify(LED_PIN, FLASH_INTERVAL, WORD_FLASHES)
 
                         else:
 
@@ -154,7 +154,7 @@ def main():
                                 message_buffer = ""
 
                                 # flash LED to notify message completion
-                                led_notify(LED_PIN, FLASH_INTERVAL, MESSAGE_FLASH)
+                                led_notify(LED_PIN, FLASH_INTERVAL, MESSAGE_FLASHES)
 
     # quit on a break
     except KeyboardInterrupt:
