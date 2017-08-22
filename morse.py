@@ -163,7 +163,7 @@ def main():
 
 # ------------------------------------------------------------------------------
 # Morse Code string translator
-# delimeted with spaces for characters, and / for words
+# delimited with spaces for characters, and / for words
 # format example "HELLO WORLD": .... . .-.. .-.. --- / .-- --- .-. .-.. -..
 
 def translate_morse_code_string(code_string):
