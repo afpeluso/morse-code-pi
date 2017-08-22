@@ -28,6 +28,9 @@ def main():
     LED_PIN = cfg['LED_PIN'] # Pin for LED
     BUZZER_PIN = cfg['BUZZER_PIN'] # Pin for Buzzer
 
+    BUZZER_FREQ = cfg['BUZZER_FREQ'] # Frequency for Buzzer
+    BUZZER_DC = cfg['BUZZER_DC'] # Duty Cycle for Buzzer
+
     CHAR_DELIMETER = cfg['CHAR_DELIMETER'] # string separator for characters
     WORD_DELIMETER = cfg['WORD_DELIMETER'] # string separator for words
 
@@ -55,9 +58,11 @@ def main():
 
     # GPIO ports
 
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(READ_PIN,GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(LED_PIN,GPIO.OUT)
+    GPIO.setmode(GPIO.BOARD) # Pin Number Mode
+    GPIO.setup(READ_PIN,GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # Morse Code Key Input
+    GPIO.setup(LED_PIN,GPIO.OUT) # LED Output
+    GPIO.setup(BUZZER_PIN,GPIO.OUT) # Buzzer Output
+    buzzer = GPIO.PWM(BUZZER_PIN,BUZZER_FREQ) # Buzzer Pulse Width Modulation
 
     try:
 
@@ -74,6 +79,9 @@ def main():
                 # turn on the LED to signify we're in a character
                 GPIO.output(LED_PIN,1)
 
+                # start the speaker since we're pressing
+                buzzer.start(BUZZER_DC)
+
                 if (press_time == NULL_TIME): # if this is the initial press
 
                     press_time = time.time()  # set pressed time
@@ -82,6 +90,9 @@ def main():
             else: # no input detected
 
                 if (press_time != NULL_TIME): # if this is initial release
+
+                    # turn off the buzzer since we've released
+                    buzzer.stop()
 
                     release_time = time.time() # get the release time
                     # get the press duration in milliseconds
