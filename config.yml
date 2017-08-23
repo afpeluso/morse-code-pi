@@ -2,8 +2,8 @@ READ_PIN: 11 # Pin to read key input from
 LED_PIN: 13 # Pin for LED
 BUZZER_PIN: 15 # Pin for Buzzer
 
-BUZZER_FREQ: 750 # Frequency for Buzzer
-BUZZER_DC: 50 # Duty Cycle for Buzzer Pulse Width Modulation
+BUZZER_FREQ: 300 # Frequency for Buzzer
+BUZZER_DC: 30 # Duty Cycle for Buzzer Pulse Width Modulation
 
 CHAR_DELIMETER: " " # string separator for characters
 WORD_DELIMETER: " / " # string separator for words

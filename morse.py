@@ -76,16 +76,27 @@ def main():
 
             if (GPIO.input(READ_PIN) == 1): # input detected
 
-                # turn on the LED to signify we're in a character
-                GPIO.output(LED_PIN,1)
-
-                # start the speaker since we're pressing
-                buzzer.start(BUZZER_DC)
-
                 if (press_time == NULL_TIME): # if this is the initial press
 
                     press_time = time.time()  # set pressed time
                     release_time = NULL_TIME # clear release time
+
+                else: # if we have a press_time
+
+                    # find out how long we've been pressing down...
+                    press_duration = math.floor((time.time() * 1000) - (press_time * 1000))
+
+                    # if we have a valid press
+                    if (press_duration > KEYPRESS_THRESHOLD):
+
+                        # turn on the LED to signify we're in a character
+                        if (GPIO.input(LED_PIN) == 0): # if we're not already started
+                            GPIO.output(LED_PIN,1)
+
+                        # start the speaker since we're legit pressing
+                        if (GPIO.input(BUZZER_PIN) == 0): # if we're not already started
+                            buzzer.start(BUZZER_DC)
+
 
             else: # no input detected
 

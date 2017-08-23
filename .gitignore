@@ -1,1 +1,2 @@
-*.swp # nano swap files
+# nano swap files
+*.swp
