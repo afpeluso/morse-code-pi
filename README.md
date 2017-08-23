@@ -28,7 +28,7 @@ This seems to make for a totally detectable input, with some thresholding in cod
 
 ## Approach
 
-On a keypress, input is measured from release time, taking a measurement of the duration of the press to determine a dit (.) or a dah (-), and subsequent measurement of the time elapsed since release to determine the threshold to cut off characters, words, and eventually the final message.
+On a keypress, input is measured from release time, taking a measurement of the duration of the press to determine a dit (.) or a dah (-) (according to a configurable threshold), and subsequent measurement of the time elapsed since release to determine whether we've passed the threshold to cut off characters, words, and eventually the final message.
 
 This is recorded into a buffer in a common style of dashes, dots, spaces and slashes, wherein HELLO WORLD would be recorded as follows:
 
@@ -37,6 +37,8 @@ This is recorded into a buffer in a common style of dashes, dots, spaces and sla
 Upon detection of a completed message, this is then translated into english characters using a simple stored Morse Code dictionary in the same format.
 
 ### Feedback
+
+#### VIsual
 
 I added an LED to the mix on Pin 13 (GPIO27) to display input status without relying on a screen.
 
@@ -51,24 +53,43 @@ I added an LED to the mix on Pin 13 (GPIO27) to display input status without rel
 - Message Input Complete
 	- 3 Blinks
 
+#### Audio
+
+I attached a buzzer on Pin 15 (GPIO22) to play audio feedback when a keypress is detected.
+
+This uses the Pi's GPIO.PWM (Pulse Width Modulation) with frequency and duty cycle settable in the config file.
+
+For some reason, at the moment, it's not entirely reliable. But this may be due to multiple start signals on bouncy input or something.
+
 ## Running This Project
+
+### Software Requirements
 This project was initially made in Python 2.7.13 since that's what came default on the default Raspbian installation.
 
 - Python 2.7.13
-- Raspbian 9
+- RPi.GPIO
+- PyYaml
+- Raspbian 9 (Probaby not required)
 
-Connect your Morse Code key or other button to header Pins 1 and 11.
+### Physical Requirements
 
-Connect your LED to Pin 13 and Ground (with appropriate resistor).
+Pins, frequencies, timing, etc. are all adjustable in config.yml.
+
+By default...
+
+- Connect your Morse Code key or other button to header Pins 1 and 11.
+
+- Connect your LED to Pin 13 (with appropriate resistor) and Ground.
+
+- Connect Buzzer to Pin 15 and Ground.
+
+### Running
 
 To get it to start listening for input just run the morse.py file.
-
 ```
 python morse.py
 ```
 KeyboardInterrupt (^C) to stop.
-
-Thresholds for dit, dah, characters, words, etc. are adjustable constants in the script.
 
 ### Code Caveat
 I am not the most Pythonic programmer. While it functions at the moment, it's also probably garbage, style-wise. I hope to clean that up soon.
