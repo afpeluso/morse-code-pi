@@ -16,7 +16,7 @@ The J-38 telegraph key has two binding posts attached to its base on the opposit
 
 ### Controller
 
-I had an old [Arduino Duemilanove](https://www.arduino.cc/en/Main/ArduinoBoardDuemilanove)  I was planning to use for this project, but decided to pick up a Raspeberry Pi 3 instead, as a WiFi hat for the old Arduino seemed to cost just as much, if not more.
+I had an old [Arduino Duemilanove](https://www.arduino.cc/en/Main/ArduinoBoardDuemilanove)  I was planning to use for this project, but decided to pick up a Raspberry Pi 3 instead, as a WiFi hat for the old Arduino seemed to cost just as much, if not more.
 
 It feels like overkill to have a gigabyte of ram and such to run this, but who doesn't want an excuse to mess with a Raspberry Pi? Come on. :)
 
@@ -38,7 +38,7 @@ Upon detection of a completed message, this is then translated into english char
 
 ### Feedback
 
-#### VIsual
+#### Visual
 
 I added an LED to the mix on Pin 13 (GPIO27) to display input status without relying on a screen.
 
@@ -59,8 +59,6 @@ I attached a buzzer on Pin 15 (GPIO22) to play audio feedback when a keypress is
 
 This uses the Pi's GPIO.PWM (Pulse Width Modulation) with frequency and duty cycle settable in the config file.
 
-For some reason, at the moment, it's not entirely reliable. But this may be due to multiple start signals on bouncy input or something.
-
 ## Running This Project
 
 ### Software Requirements
@@ -69,7 +67,7 @@ This project was initially made in Python 2.7.13 since that's what came default 
 - Python 2.7.13
 - RPi.GPIO
 - PyYaml
-- Raspbian 9 (Probaby not required)
+- Raspbian 9 (Probably not required)
 
 ### Physical Requirements
 
