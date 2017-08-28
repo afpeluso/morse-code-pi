@@ -54,7 +54,8 @@ def main():
 
     char_buffer = "" # storage for current character, start with blank
     word_buffer = "" # storage for current word, start with blank
-    message_buffer = "" # storage for whole message, start with blank
+    morse_buffer = "" # storage for morse message, start with blank
+    text_output = "" # storage for text message
 
     # GPIO ports
 
@@ -158,9 +159,9 @@ def main():
                                 if (len(word_buffer) > 0):
 
                                     # add word to message, add delimeter if necessary, clear word buffer
-                                    if(len(message_buffer) > 0): message_buffer += (WORD_DELIMETER)
+                                    if(len(morse_buffer) > 0): morse_buffer += (WORD_DELIMETER)
 
-                                    message_buffer += word_buffer
+                                    morse_buffer += word_buffer
                                     print "WORD ADDED: " + word_buffer
                                     word_buffer = ""
 
@@ -170,11 +171,16 @@ def main():
                         else:
 
                             # if we have a message
-                            if (len(message_buffer) > 0):
+                            if (len(morse_buffer) > 0):
 
-                                print "MESSAGE COMPLETED: " + message_buffer
-                                print "TEXT: " + translate_morse_code_string(message_buffer)
-                                message_buffer = ""
+                                print "MESSAGE COMPLETED: " + morse_buffer
+                                text_output = translate_morse_code_string(morse_buffer)
+                                print "TEXT: " + text_output
+                                morse_buffer = "" # reset string
+
+                                # Send to Twitter!
+
+                                text_output = "" # reset string
 
                                 # flash LED to notify message completion
                                 led_notify(LED_PIN, FLASH_INTERVAL, MESSAGE_FLASHES)
