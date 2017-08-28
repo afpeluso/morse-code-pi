@@ -4,6 +4,8 @@ BUZZER_PIN: 15 # Pin for Buzzer
 
 BUZZER_FREQ: 300 # Frequency for Buzzer
 BUZZER_DC: 30 # Duty Cycle for Buzzer Pulse Width Modulation
+BLINKER_FREQ: 2 # Frequency for LED Blinks
+BLINKER_DC: 10 # Duty Cycle for Blinker Pulse Width Modulation
 
 CHAR_DELIMETER: " " # string separator for characters
 WORD_DELIMETER: " / " # string separator for words
@@ -14,7 +16,11 @@ CHAR_THRESHOLD: 225 # ms, post-release, when to cut off a letter and add it to t
 WORD_THRESHOLD: 1000 # ms, post-release, when to add a space
 MESSAGE_THRESHOLD: 2500 # ms, post-release, when a message is complete
 
+COMMAND_MODE_DURATION: 5.0 # sec, duration of command mode input acceptance
+COMMAND_MODE_THRESHOLD: 1.0 # sec, time before command mode starts
+
 FLASH_INTERVAL: 0.05 # seconds of flash interval
 INITIALIZE_FLASHES: 3 # LED flashes on intialization
 WORD_FLASHES: 1 # LED flashes on word completion
 MESSAGE_FLASHES: 3 # LED flashes on message completion
+TRANSMITTED_FLASHES: 5 # number of LED flashes on successful transmission
