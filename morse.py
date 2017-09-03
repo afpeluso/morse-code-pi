@@ -16,7 +16,9 @@ import RPi.GPIO as GPIO
 import time
 import math
 import yaml # PyYaml
-import tweepy # Tweepy Twitter integration library www.tweepy.org
+# tweepy import handled below conditionally, 
+# so as not to require it if Twitter integration is disabled.
+# Tweepy Twitter integration library www.tweepy.org
 
 def main():
 
@@ -42,11 +44,15 @@ def main():
         except:
             # twitter_config.yml likely does not exist
             print "TWITTER TRANSMISSION DISABLED, ERROR LOADING CONFIGURATION"
-            print "(have you made the twitter-config.yml file yet?)"
+            print "(have you made the twitter_config.yml file yet?)"
             # set TWITTER_ENABLED false because we don't have configuration anyway
             TWITTER_ENABLED = False
     else:
         print "TWITTER TRANSMISSION DISABLED"
+
+    # if Twitter transmission is enabled, import tweepy library
+    if (TWITTER_ENABLED):
+        import tweepy
 
     # Constants
 

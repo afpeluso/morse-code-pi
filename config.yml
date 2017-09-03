@@ -25,4 +25,4 @@ WORD_FLASHES: 1 # LED flashes on word completion
 MESSAGE_FLASHES: 3 # LED flashes on message completion
 TRANSMITTED_FLASHES: 5 # number of LED flashes on successful transmission
 
-TWITTER_ENABLED: true
+TWITTER_ENABLED: true # whether Twitter integration is enabled
