@@ -257,19 +257,25 @@ def main():
 
                         print "TRANSMITTING..."
 
-                        # Send to Twitter!
-                        auth = tweepy.OAuthHandler(API_KEY, API_SECRET)
-                        auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-                        api = tweepy.API(auth)
-                        twitter_status = api.update_status(text_output)
-                        # say something about twitter send?
+                        try:
+                            # Send to Twitter!
+                            auth = tweepy.OAuthHandler(API_KEY, API_SECRET)
+                            auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+                            api = tweepy.API(auth)
+                            twitter_status = api.update_status(text_output)
+                            print "TRANSMISSION SUCCESSFUL, ID#" + str(twitter_status.id)
 
-                        # make sure twitter send happened here!
+                        # Catch any twitter errors and tell the user
+                        except tweepy.TweepError as e:
+                            print "TRANSMISSION ERROR: " + str(e.message[0]['message'])
+
+                        # Catch any other errors
+                        except:
+                            print "TRANSMISSION ERROR, CHECK CONFIGURATION FILES"
 
                         blinker.stop() # stop the blinking
                         # Flash LED
                         led_notify(LED_PIN, FLASH_INTERVAL, TRANSMITTED_FLASHES)
-                        print "TRANSMISSION SENT"
 
                         # reset everything
                         text_output = "" # reset string
