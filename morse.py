@@ -26,19 +26,27 @@ def main():
     with open("config.yml", 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
-    # Eventually leave them the option
-    # if (cfg['TWITTER_ENABLED'] == True)
+    TWITTER_ENABLED = cfg['TWITTER_ENABLED']
 
-    # separate twitter config because it's sensitive
-    # possibly allow for it to not exist if someone doesn't want to post to twitter
-    try:
-        # load the file
-        with open("twitter_config.yml", 'r') as ymlfile:
-            twitter_cfg = yaml.load(ymlfile)
-    except FileNotFoundError:
-        # twitter_config.yml does not exist
-        print "Twitter Configuration Not Found"
-        exit() # bail
+    # If we are integrating with Twitter...
+    if (TWITTER_ENABLED):
+
+        # this stuff is in a separate twitter config because it's sensitive
+        try:
+            # load the file
+            with open("twitter_config.yml", 'r') as ymlfile:
+                twitter_cfg = yaml.load(ymlfile)
+                # Set the variable
+                print "TWITTER TRANSMISSION ENABLED, CONFIGURATION LOADED"
+
+        except:
+            # twitter_config.yml likely does not exist
+            print "TWITTER TRANSMISSION DISABLED, ERROR LOADING CONFIGURATION"
+            print "(have you made the twitter-config.yml file yet?)"
+            # set TWITTER_ENABLED false because we don't have configuration anyway
+            TWITTER_ENABLED = False
+    else:
+        print "TWITTER TRANSMISSION DISABLED"
 
     # Constants
 
@@ -51,8 +59,8 @@ def main():
     BLINKER_FREQ = cfg['BLINKER_FREQ'] # Frequency for LED Blinks
     BLINKER_DC = cfg['BLINKER_DC'] # Duty Cycle for Blinker Pulse Width Modulation
 
-    COMMAND_MODE_DURATION = cfg['COMMAND_MODE_DURATION'] # sec, duration of command mode input acceptance
-    COMMAND_MODE_THRESHOLD = cfg['COMMAND_MODE_THRESHOLD'] # sec, time before command mode starts
+    TRANSMIT_MODE_DURATION = cfg['TRANSMIT_MODE_DURATION'] # sec, duration of transmit mode input acceptance
+    TRANSMIT_MODE_THRESHOLD = cfg['TRANSMIT_MODE_THRESHOLD'] # sec, time before transmit mode starts
 
     CHAR_DELIMETER = cfg['CHAR_DELIMETER'] # string separator for characters
     WORD_DELIMETER = cfg['WORD_DELIMETER'] # string separator for words
@@ -73,11 +81,13 @@ def main():
 
     # Twitter Constants
 
-    API_KEY = twitter_cfg['API_KEY']
-    API_SECRET = twitter_cfg['API_SECRET']
+    if (TWITTER_ENABLED):
 
-    ACCESS_TOKEN = twitter_cfg['ACCESS_TOKEN']
-    ACCESS_TOKEN_SECRET = twitter_cfg['ACCESS_TOKEN_SECRET']
+        API_KEY = twitter_cfg['API_KEY']
+        API_SECRET = twitter_cfg['API_SECRET']
+
+        ACCESS_TOKEN = twitter_cfg['ACCESS_TOKEN']
+        ACCESS_TOKEN_SECRET = twitter_cfg['ACCESS_TOKEN_SECRET']
 
     # Variables
 
@@ -89,9 +99,9 @@ def main():
     morse_buffer = "" # storage for morse message, start with blank
     text_output = "" # storage for text message
 
-    # modes: input, command
+    # modes: input, transmit
     mode = "input" # default to inputs
-    command_mode_start = NULL_TIME # initialize
+    transmit_mode_start = NULL_TIME # initialize
 
     # GPIO ports
 
@@ -118,7 +128,7 @@ def main():
 
                 if (GPIO.input(READ_PIN) == 1): # input detected
 
-                    if (press_time == NULL_TIME): # if this is the initial press
+                    if (press_time is NULL_TIME): # if this is the initial press
 
                         press_time = time.time()  # set pressed time
                         release_time = NULL_TIME # clear release time
@@ -141,7 +151,7 @@ def main():
 
                 else: # no input detected
 
-                    if (press_time != NULL_TIME): # if this is initial release
+                    if (press_time is not NULL_TIME): # if this is initial release
 
                         # turn off the buzzer since we've released
                         buzzer.stop()
@@ -222,21 +232,25 @@ def main():
                                     # flash LED to notify message completion
                                     led_notify(LED_PIN, FLASH_INTERVAL, MESSAGE_FLASHES)
 
-                                    # If we have a message completed, switch to command mode
-                                    print "PREPARING TO SEND MESSAGE"
-                                    print "TAP WHILE LED IS FLASHING TO CONFIRM TRANSMISSION TO TWITTER"
-                                    time.sleep(COMMAND_MODE_THRESHOLD)
-                                    command_mode_start = time.time()
-                                    mode = "command"
+                                    # if we have twitter enabled
+                                    if (TWITTER_ENABLED):
+                                        print "TAP WHILE LED IS FLASHING TO CONFIRM TRANSMISSION TO TWITTER"
+                                        # wait a little bit...
+                                        time.sleep(TRANSMIT_MODE_THRESHOLD)
+                                        # then switch to transmit mode
+                                        transmit_mode_start = time.time()
+                                        mode = "transmit"
 
-            while (mode == "command"):
+            # transmit mode for sending to twitter
+            # this mode will only get switched to if TWITTER_ENABLED is true
+            while (mode == "transmit"):
 
                 # if the LED isn't already blinking
                 if (GPIO.input(LED_PIN) == 0):
                     blinker.start(BLINKER_DC)
 
-                # if we are still within command mode time limit
-                if ((time.time() - command_mode_start) < COMMAND_MODE_DURATION):
+                # if we are still within transmit mode time limit
+                if ((time.time() - transmit_mode_start) < TRANSMIT_MODE_DURATION):
 
                     # if we have a tap
                     if (GPIO.input(READ_PIN) == 1):
@@ -259,7 +273,7 @@ def main():
 
                         # reset everything
                         text_output = "" # reset string
-                        command_mode_start = NULL_TIME
+                        transmit_mode_start = NULL_TIME
                         print "RETURNING TO INPUT MODE"
                         print "LISTENING FOR TAP"
                         mode = "input" # go back into input mode
@@ -268,8 +282,8 @@ def main():
                     # reset everything
                     blinker.stop() # stop the blinking
                     text_output = "" # reset string
-                    command_mode_start = NULL_TIME # reset command start
-                    print "COMMAND INTERVAL ENDED, RETURNING TO INPUT MODE"
+                    transmit_mode_start = NULL_TIME # reset transmit start
+                    print "TRANSMIT INTERVAL ENDED, RETURNING TO INPUT MODE"
                     print "LISTENING FOR TAP"
                     mode = "input" # go back into input mode
 

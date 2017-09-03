@@ -16,11 +16,13 @@ CHAR_THRESHOLD: 225 # ms, post-release, when to cut off a letter and add it to t
 WORD_THRESHOLD: 1000 # ms, post-release, when to add a space
 MESSAGE_THRESHOLD: 2500 # ms, post-release, when a message is complete
 
-COMMAND_MODE_DURATION: 5.0 # sec, duration of command mode input acceptance
-COMMAND_MODE_THRESHOLD: 1.0 # sec, time before command mode starts
+TRANSMIT_MODE_DURATION: 5.0 # sec, duration of transmit mode input acceptance
+TRANSMIT_MODE_THRESHOLD: 1.0 # sec, time before transmit mode starts
 
 FLASH_INTERVAL: 0.05 # seconds of flash interval
 INITIALIZE_FLASHES: 3 # LED flashes on intialization
 WORD_FLASHES: 1 # LED flashes on word completion
 MESSAGE_FLASHES: 3 # LED flashes on message completion
 TRANSMITTED_FLASHES: 5 # number of LED flashes on successful transmission
+
+TWITTER_ENABLED: true
