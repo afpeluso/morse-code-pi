@@ -1,11 +1,14 @@
-READ_PIN: 11 # Pin to read key input from
-LED_PIN: 13 # Pin for LED
-BUZZER_PIN: 15 # Pin for Buzzer
 
-BUZZER_FREQ: 300 # Frequency for Buzzer
-BUZZER_DC: 30 # Duty Cycle for Buzzer Pulse Width Modulation
-BLINKER_FREQ: 2 # Frequency for LED Blinks
-BLINKER_DC: 10 # Duty Cycle for Blinker Pulse Width Modulation
+# for pigpio, use Broadcom pin numbers
+# for Raspberry Pi 3 Model B, http://abyz.co.uk/rpi/pigpio/index.html#Type_3
+READ_PIN: 17 # Pin to read key input from
+LED_PIN: 27 # Pin for LED
+BUZZER_PIN: 22 # Pin for Buzzer
+
+BUZZER_FREQ: 320 # Frequency for Buzzer
+BUZZER_DC: 30 # Duty Cycle for Buzzer Pulse Width Modulation, 0-255
+BLINKER_FREQ: 10 # Frequency for LED Blinks
+BLINKER_DC: 40 # Duty Cycle for Blinker Pulse Width Modulation, 0-255
 
 CHAR_DELIMETER: " " # string separator for characters
 WORD_DELIMETER: " / " # string separator for words
