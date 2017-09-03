@@ -17,7 +17,7 @@ WORD_THRESHOLD: 1000 # ms, post-release, when to add a space
 MESSAGE_THRESHOLD: 2500 # ms, post-release, when a message is complete
 
 TRANSMIT_MODE_DURATION: 5.0 # sec, duration of transmit mode input acceptance
-TRANSMIT_MODE_THRESHOLD: 1.0 # sec, time before transmit mode starts
+TRANSMIT_MODE_THRESHOLD: 0.5 # sec, time before transmit mode starts
 
 FLASH_INTERVAL: 0.05 # seconds of flash interval
 INITIALIZE_FLASHES: 3 # LED flashes on intialization
