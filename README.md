@@ -32,25 +32,29 @@ This seems to make for a totally detectable input, with some thresholding in cod
 This project was initially made in Python 2.7.13 since that's what came default on the default Raspbian installation.
 
 - Python 2.7.13
-- RPi.GPIO
 - PyYaml
+- [pigpio](http://abyz.co.uk/rpi/pigpio/)
 - [Tweepy](http://www.tweepy.org) (not required if Twitter disabled)
 - Raspbian 9 (Probably not required, but it's what I'm running at the moment.)
 
-PyYaml and Tweepy are both available through pip.
+PyYaml, pigpio and Tweepy are available through pip.
+
+Originally used RPi.GPIO, but software PWM proved somewhat inconsistent. pigpio ended up being more stable.
 
 ### Physical Requirements
 
 By default...
 
-- Connect your Morse Code key or other button to header Pins 1 and 11.
-- Connect your LED to Pin 13 (with appropriate resistor) and Ground.
-- Connect Buzzer to Pin 15 and Ground.
+- Connect Morse Code key or other button to header Pins 1 and 11 (GPIO17).
+- Connect LED to Pin 13 (GPIO27) (with appropriate resistor) and Ground.
+- Connect Buzzer to Pin 15 (GPIO22) and Ground.
 
 Pins, frequencies, timing, etc. are all adjustable in `config.yml`.
 
+Note: For pigpio to work, pins must be referred to by their [Broadcom GPIO Numbers](http://elinux.org/RPi_Low-level_peripherals#General_Purpose_Input.2FOutput_.28GPIO.29) in this config file.
+
 ### Configuration
-Raspberry Pi must be connected to Internet for Twitter Integration, but this is not required to simply interpret Morse Code input.
+Raspberry Pi must be connected to Internet for Twitter Integration, but this is not required to interpret and practice Morse Code input.
 
 #### config.yml
 This file sets all of the pins, timing thresholds, etc. Does not need to be adjusted to function out-of-the-box.
@@ -58,7 +62,7 @@ This file sets all of the pins, timing thresholds, etc. Does not need to be adju
 If `TWITTER_ENABLED` is set to false, it won't try to load `twitter_config.yml`
 
 #### twitter_config.yml
-This file must be created by the user, and should contain the API Keys and Access Tokens necessary for Twitter integration. (You will need to set up an application on your Twitter account to get these keys.)
+In order to enable Twitter integration, this file should be created by the user, and should contain the API Keys and Access Tokens. (You will need to set up an application on your Twitter account to get these keys.)
 
 `twitter_config.example.yml` contains the template. Copy it to `twitter_config.yml` and replace the values appropriately.
 
@@ -66,11 +70,18 @@ The Morse Code interpreter will still run without this file. If the file is not 
 
 ### Running
 
-To get it to start listening for input, run the morse.py file like so
+First, the pigpio daemon should be initialized with sudo. The default settings worked for me.
+```
+sudo pigpiod
+```
+
+To start listening for input, run the morse.py file like so
 ```
 python morse.py
 ```
 KeyboardInterrupt (^C) to stop.
+
+If pigpiod is already running, there is no need to re-run it to run morse.py again.
 
 ## Operation
 
@@ -94,7 +105,7 @@ If Twitter integration is enabled, after a message is translated, the program sw
 
 If a tap is detected, transmission is attempted using the configuration found in `twitter_config.yml`, and then the program is returned to "input" mode.
 
-If no tap is detected after the set duration the program returns to "input" mode.
+If no tap is detected after the set duration, the program returns to "input" mode.
 
 ### Feedback
 
@@ -103,20 +114,22 @@ If no tap is detected after the set duration the program returns to "input" mode
 An LED on Pin 13 (GPIO27) displays input status without relying on a screen.
 
 - Initialization
-	- 3 Blinks
+	- 3 Rapid Flashes
 - Character Input In Progress
 	- LED on
 - Character Input Complete
 	- LED off
 - Word Input Complete
-	- 1 Blink
+	- 1 Flash
 - Message Input Complete
-	- 3 Blinks
+	- 3 Rapid Flashes
 - "Transmit" Mode Active
-	- Flashing
+	- Blinking for a period
+
+Uses [pigpio's PWM](http://abyz.co.uk/rpi/pigpio/python.html#set_PWM_frequency) (Pulse Width Modulation) with frequency and duty cycle settable in the config file.
 
 #### Audio
 
 A buzzer on Pin 15 (GPIO22) plays audio feedback when a keypress is detected.
 
-This uses the Pi's GPIO.PWM (Pulse Width Modulation) with frequency and duty cycle settable in the config file.
+Uses the [pigpio's PWM](http://abyz.co.uk/rpi/pigpio/python.html#set_PWM_frequency) (Pulse Width Modulation) with frequency and duty cycle settable in the config file.
