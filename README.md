@@ -132,4 +132,4 @@ Uses [pigpio's PWM](http://abyz.co.uk/rpi/pigpio/python.html#set_PWM_frequency) 
 
 A buzzer on Pin 15 (GPIO22) plays audio feedback when a keypress is detected.
 
-Uses the [pigpio's PWM](http://abyz.co.uk/rpi/pigpio/python.html#set_PWM_frequency) (Pulse Width Modulation) with frequency and duty cycle settable in the config file.
+Uses [pigpio's PWM](http://abyz.co.uk/rpi/pigpio/python.html#set_PWM_frequency) (Pulse Width Modulation) with frequency and duty cycle settable in the config file.
