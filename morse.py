@@ -56,6 +56,10 @@ def main():
 
     # Constants
 
+    PIN_ON = 1 # Pin On Value
+    PIN_OFF = 0 # Pin Off Value
+    DC_OFF = 0 # PWM Duty Cycle Off Value
+
     READ_PIN = cfg['READ_PIN'] # Pin to read key input from
     LED_PIN = cfg['LED_PIN'] # Pin for LED
     BUZZER_PIN = cfg['BUZZER_PIN'] # Pin for Buzzer
@@ -116,10 +120,10 @@ def main():
     io.set_pull_up_down(READ_PIN, pigpio.PUD_DOWN) # set input to use pulldown
     io.set_mode(LED_PIN, pigpio.OUTPUT) # LED Output
     io.set_PWM_frequency(LED_PIN, BLINKER_FREQ) # Set Blinker Frequency
-    io.set_PWM_dutycycle(LED_PIN, 0) # Start Duty Cycle at "Off"
+    io.set_PWM_dutycycle(LED_PIN, DC_OFF) # Start Duty Cycle at "Off"
     io.set_mode(BUZZER_PIN, pigpio.OUTPUT) # Buzzer Output
     io.set_PWM_frequency(BUZZER_PIN, BUZZER_FREQ) # Set Buzzer Frequency
-    io.set_PWM_dutycycle(BUZZER_PIN,0) # Start Duty Cycle at "Off"
+    io.set_PWM_dutycycle(BUZZER_PIN,DC_OFF) # Start Duty Cycle at "Off"
 
     try:
 
@@ -135,7 +139,7 @@ def main():
             # while we're in input mode
             while (mode == "input"):
 
-                if (io.read(READ_PIN) == 1): # input detected
+                if (io.read(READ_PIN) == PIN_ON): # input detected
 
                     if (press_time is NULL_TIME): # if this is the initial press
 
@@ -151,11 +155,11 @@ def main():
                         if (press_duration > KEYPRESS_THRESHOLD):
 
                             # turn on the LED to signify we're in a character
-                            if (io.read(LED_PIN) == 0): # if we're not already started
-                                io.write(LED_PIN,1)
+                            if (io.read(LED_PIN) == PIN_OFF): # if we're not already started
+                                io.write(LED_PIN,PIN_ON)
 
                             # start the speaker since we're legit pressing
-                            if (io.get_PWM_dutycycle(BUZZER_PIN) == 0): # if we're not already started
+                            if (io.get_PWM_dutycycle(BUZZER_PIN) == DC_OFF): # if we're not already started
                                 io.set_PWM_dutycycle(BUZZER_PIN, BUZZER_DC)
 
                 else: # no input detected
@@ -163,7 +167,7 @@ def main():
                     if (press_time is not NULL_TIME): # if this is initial release
 
                         # turn off the buzzer since we've released
-                        io.set_PWM_dutycycle(BUZZER_PIN, 0)
+                        io.set_PWM_dutycycle(BUZZER_PIN, DC_OFF)
 
                         release_time = time.time() # get the release time
                         # get the press duration in milliseconds
@@ -210,7 +214,7 @@ def main():
                                             char_buffer = ""
 
                                             # turn off the LED to signify char completion
-                                            io.write(LED_PIN,0)
+                                            io.write(LED_PIN,PIN_OFF)
 
                                 else:
 
@@ -255,14 +259,14 @@ def main():
             while (mode == "transmit"):
 
                 # if the LED isn't already blinking
-                if (io.read(LED_PIN) == 0):
+                if (io.read(LED_PIN) == PIN_OFF):
                     io.set_PWM_dutycycle(LED_PIN, BLINKER_DC)
 
                 # if we are still within transmit mode time limit
                 if ((time.time() - transmit_mode_start) < TRANSMIT_MODE_DURATION):
 
                     # if we have a tap
-                    if (io.read(READ_PIN) == 1):
+                    if (io.read(READ_PIN) == PIN_ON):
 
                         print "TRANSMITTING..."
 
@@ -282,7 +286,7 @@ def main():
                         except:
                             print "TRANSMISSION ERROR, CHECK CONFIGURATION FILES"
 
-                        io.set_PWM_dutycycle(LED_PIN, 0) # stop the blinking
+                        io.set_PWM_dutycycle(LED_PIN, DC_OFF) # stop the blinking
                         # Flash LED
                         led_notify(LED_PIN, FLASH_INTERVAL, TRANSMITTED_FLASHES)
 
@@ -295,7 +299,7 @@ def main():
                 else:
 
                     # reset everything
-                    io.set_PWM_dutycycle(LED_PIN, 0) # stop the blinking
+                    io.set_PWM_dutycycle(LED_PIN, DC_OFF) # stop the blinking
                     text_output = "" # reset string
                     transmit_mode_start = NULL_TIME # reset transmit start
                     print "TRANSMIT INTERVAL ENDED, RETURNING TO INPUT MODE"
