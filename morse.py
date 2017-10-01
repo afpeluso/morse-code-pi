@@ -20,6 +20,9 @@ import yaml # PyYaml
 # so as not to require it if Twitter integration is disabled.
 # Tweepy Twitter integration library www.tweepy.org
 
+import Adafruit_CharLCD as LCD # LCD Screen Library
+
+
 def main():
 
     # Configuration Files
@@ -61,13 +64,10 @@ def main():
     DC_OFF = 0 # PWM Duty Cycle Off Value
 
     READ_PIN = cfg['READ_PIN'] # Pin to read key input from
-    LED_PIN = cfg['LED_PIN'] # Pin for LED
     BUZZER_PIN = cfg['BUZZER_PIN'] # Pin for Buzzer
 
     BUZZER_FREQ = cfg['BUZZER_FREQ'] # Frequency for Buzzer
     BUZZER_DC = cfg['BUZZER_DC'] # Duty Cycle for Buzzer
-    BLINKER_FREQ = cfg['BLINKER_FREQ'] # Frequency for LED Blinks
-    BLINKER_DC = cfg['BLINKER_DC'] # Duty Cycle for Blinker Pulse Width Modulation
 
     TRANSMIT_MODE_DURATION = cfg['TRANSMIT_MODE_DURATION'] # sec, duration of transmit mode input acceptance
     TRANSMIT_MODE_THRESHOLD = cfg['TRANSMIT_MODE_THRESHOLD'] # sec, time before transmit mode starts
@@ -80,12 +80,6 @@ def main():
     CHAR_THRESHOLD = cfg['CHAR_THRESHOLD'] # ms, post-release, when to cut off a letter and add it to the message
     WORD_THRESHOLD = cfg['WORD_THRESHOLD'] # ms, post-release, when to add a space
     MESSAGE_THRESHOLD = cfg['MESSAGE_THRESHOLD'] # ms, post-release, when a message is complete
-
-    FLASH_INTERVAL = cfg['FLASH_INTERVAL'] # seconds of flash interval
-    INITIALIZE_FLASHES = cfg['INITIALIZE_FLASHES'] # number of LED flashes on intialization
-    WORD_FLASHES = cfg['WORD_FLASHES'] # number of LED flashes on word completion
-    MESSAGE_FLASHES = cfg['MESSAGE_FLASHES'] # number of LED flashes on message completion
-    TRANSMITTED_FLASHES = cfg['TRANSMITTED_FLASHES'] # number of LED flashes on successful transmission
 
     NULL_TIME = time.gmtime(0) # "null" time for timestamps not in use
 
@@ -118,9 +112,6 @@ def main():
     io = pigpio.pi() # create the pigpio instance
     io.set_mode(READ_PIN, pigpio.INPUT) # set up the input
     io.set_pull_up_down(READ_PIN, pigpio.PUD_DOWN) # set input to use pulldown
-    io.set_mode(LED_PIN, pigpio.OUTPUT) # LED Output
-    io.set_PWM_frequency(LED_PIN, BLINKER_FREQ) # Set Blinker Frequency
-    io.set_PWM_dutycycle(LED_PIN, DC_OFF) # Start Duty Cycle at "Off"
     io.set_mode(BUZZER_PIN, pigpio.OUTPUT) # Buzzer Output
     io.set_PWM_frequency(BUZZER_PIN, BUZZER_FREQ) # Set Buzzer Frequency
     io.set_PWM_dutycycle(BUZZER_PIN,DC_OFF) # Start Duty Cycle at "Off"
@@ -129,9 +120,6 @@ def main():
 
         # just so we know something's happening
         print "LISTENING FOR TAP"
-
-        # flash LED to show that we're initialized
-        led_notify(LED_PIN, FLASH_INTERVAL, INITIALIZE_FLASHES)
 
         # main loop
         while True:
@@ -153,10 +141,6 @@ def main():
 
                         # if we have a valid press
                         if (press_duration > KEYPRESS_THRESHOLD):
-
-                            # turn on the LED to signify we're in a character
-                            if (io.read(LED_PIN) == PIN_OFF): # if we're not already started
-                                io.write(LED_PIN,PIN_ON)
 
                             # start the speaker since we're legit pressing
                             if (io.get_PWM_dutycycle(BUZZER_PIN) == DC_OFF): # if we're not already started
@@ -213,9 +197,6 @@ def main():
                                             print "CHARACTER ADDED: " + char_buffer
                                             char_buffer = ""
 
-                                            # turn off the LED to signify char completion
-                                            io.write(LED_PIN,PIN_OFF)
-
                                 else:
 
                                     # if we have a word in process
@@ -228,9 +209,6 @@ def main():
                                         print "WORD ADDED: " + word_buffer
                                         word_buffer = ""
 
-                                        # flash LED to signify word completion
-                                        led_notify(LED_PIN, FLASH_INTERVAL, WORD_FLASHES)
-
                             else:
 
                                 # if we have a message
@@ -242,12 +220,9 @@ def main():
                                     print "TEXT: " + text_output
                                     morse_buffer = "" # reset string
 
-                                    # flash LED to notify message completion
-                                    led_notify(LED_PIN, FLASH_INTERVAL, MESSAGE_FLASHES)
-
                                     # if we have twitter enabled
                                     if (TWITTER_ENABLED):
-                                        print "TAP WHILE LED IS FLASHING TO CONFIRM TRANSMISSION TO TWITTER"
+                                        print "TAP TO CONFIRM TRANSMISSION TO TWITTER"
                                         # wait a little bit...
                                         time.sleep(TRANSMIT_MODE_THRESHOLD)
                                         # then switch to transmit mode
@@ -257,10 +232,6 @@ def main():
             # transmit mode for sending to twitter
             # this mode will only get switched to if TWITTER_ENABLED is true
             while (mode == "transmit"):
-
-                # if the LED isn't already blinking
-                if (io.read(LED_PIN) == PIN_OFF):
-                    io.set_PWM_dutycycle(LED_PIN, BLINKER_DC)
 
                 # if we are still within transmit mode time limit
                 if ((time.time() - transmit_mode_start) < TRANSMIT_MODE_DURATION):
@@ -286,10 +257,6 @@ def main():
                         except:
                             print "TRANSMISSION ERROR, CHECK CONFIGURATION FILES"
 
-                        io.set_PWM_dutycycle(LED_PIN, DC_OFF) # stop the blinking
-                        # Flash LED
-                        led_notify(LED_PIN, FLASH_INTERVAL, TRANSMITTED_FLASHES)
-
                         # reset everything
                         text_output = "" # reset string
                         transmit_mode_start = NULL_TIME
@@ -299,7 +266,6 @@ def main():
                 else:
 
                     # reset everything
-                    io.set_PWM_dutycycle(LED_PIN, DC_OFF) # stop the blinking
                     text_output = "" # reset string
                     transmit_mode_start = NULL_TIME # reset transmit start
                     print "TRANSMIT INTERVAL ENDED, RETURNING TO INPUT MODE"
@@ -338,19 +304,6 @@ def translate_morse_code_string(code_string):
     message = ''.join(morseAlphabet[key] if (key in morseAlphabet) else "?" for key in characters)
 
     return message
-
-
-# ------------------------------------------------------------------------------
-# Flash LED for Notifications
-# This might work better as PWM...
-
-def led_notify(pin,interval,repetitions):
-    for x in range(0,repetitions):
-        io = pigpio.pi()
-        io.write(pin,1)
-        time.sleep(interval)
-        io.write(pin,0)
-        time.sleep(interval)
 
 
 # ------------------------------------------------------------------------------
