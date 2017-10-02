@@ -193,14 +193,14 @@ def main():
                                 char_buffer += "."
 
                                 lcd.clear() # clear it
-                                lcd.message(char_buffer + "\n" + message_buffer + ' ' + word_buffer)
+                                lcd.message(char_buffer + "\n" + (message_buffer + WORD_DELIMETER + word_buffer).strip())
 
                             elif (press_duration >= DITDAH_THRESHOLD):
 
                                 char_buffer += "-"
 
                                 lcd.clear() # clear it
-                                lcd.message(char_buffer + "\n" + message_buffer + ' ' + word_buffer)
+                                lcd.message(char_buffer + "\n" + (message_buffer + WORD_DELIMETER + word_buffer).strip())
 
                     else: # if we're waiting for input
 
@@ -226,7 +226,7 @@ def main():
                                             word_buffer += char_translated
 
                                             lcd.clear()
-                                            lcd.message("CHAR ADD: " + char_translated + "\n" + message_buffer + ' ' + word_buffer)
+                                            lcd.message("CHAR+: " + char_translated + "\n" + (message_buffer + WORD_DELIMETER + word_buffer).strip())
                                             char_buffer = ""
                                             char_translated = ""
 
@@ -237,11 +237,11 @@ def main():
 
                                         # add word to message, add delimeter if necessary, clear word buffer
                                         if(len(message_buffer) > 0): message_buffer += (WORD_DELIMETER)
-
                                         message_buffer += word_buffer
 
                                         lcd.clear()
-                                        lcd.message("WORD ADD: \n" + word_buffer + "\n" + message_buffer + ' ' + word_buffer)
+                                        lcd.message("WORD+: " + word_buffer + "\n" + (message_buffer).strip())
+
                                         word_buffer = ""
 
                             else:
