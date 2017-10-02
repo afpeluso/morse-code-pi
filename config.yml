@@ -2,8 +2,19 @@
 # for pigpio, use Broadcom pin numbers
 # for Raspberry Pi 3 Model B, http://abyz.co.uk/rpi/pigpio/index.html#Type_3
 READ_PIN: 17 # Pin to read key input from
-LED_PIN: 27 # Pin for LED
 BUZZER_PIN: 22 # Pin for Buzzer
+
+# for LCD, use Broadcom pin numbers
+LCD_RS_PIN: 26
+LCD_EN_PIN: 19
+LCD_D4_PIN: 13
+LCD_D5_PIN: 6
+LCD_D6_PIN: 5
+LCD_D7_PIN: 11
+LCD_BACKLIGHT_PIN: 4 # not used
+
+LCD_COLUMNS: 16
+LCD_ROWS: 2
 
 BUZZER_FREQ: 320 # Frequency for Buzzer
 BUZZER_DC: 30 # Duty Cycle for Buzzer Pulse Width Modulation, 0-255

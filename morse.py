@@ -46,17 +46,17 @@ def main():
     BUZZER_DC = cfg['BUZZER_DC'] # Duty Cycle for Buzzer
 
     # LCD pin configuration:
-    LCD_RS_PIN = 26
-    LCD_EN_PIN = 19
-    LCD_D4_PIN = 13
-    LCD_D5_PIN = 6
-    LCD_D6_PIN = 5
-    LCD_D7_PIN = 11
-    LCD_BACKLIGHT_PIN = 4 # not used
+    LCD_RS_PIN = cfg['LCD_RS_PIN']
+    LCD_EN_PIN = cfg['LCD_EN_PIN']
+    LCD_D4_PIN = cfg['LCD_D4_PIN']
+    LCD_D5_PIN = cfg['LCD_D5_PIN']
+    LCD_D6_PIN = cfg['LCD_D6_PIN']
+    LCD_D7_PIN = cfg['LCD_D7_PIN']
+    LCD_BACKLIGHT_PIN = cfg['LCD_BACKLIGHT_PIN'] # not used
 
     # Define LCD column and row size for 16x2 LCD.
-    LCD_COLUMNS = 16
-    LCD_ROWS = 2
+    LCD_COLUMNS = cfg['LCD_COLUMNS']
+    LCD_ROWS = cfg['LCD_ROWS']
 
     # Initialize the LCD using the pins above.
     lcd = LCD.Adafruit_CharLCD(LCD_RS_PIN, LCD_EN_PIN, LCD_D4_PIN, LCD_D5_PIN, LCD_D6_PIN, LCD_D7_PIN,
