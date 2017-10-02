@@ -10,8 +10,7 @@ BUZZER_DC: 30 # Duty Cycle for Buzzer Pulse Width Modulation, 0-255
 BLINKER_FREQ: 10 # Frequency for LED Blinks
 BLINKER_DC: 40 # Duty Cycle for Blinker Pulse Width Modulation, 0-255
 
-CHAR_DELIMETER: " " # string separator for characters
-WORD_DELIMETER: " / " # string separator for words
+WORD_DELIMETER: " " # string separator for words
 
 KEYPRESS_THRESHOLD: 10  # ms, how long a press has to be to be recognized, for bounce
 DITDAH_THRESHOLD: 150 # ms, when a press goes from a dit to a dah

@@ -31,6 +31,58 @@ def main():
     with open("config.yml", 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
+    # Constants
+
+    PIN_ON = 1 # Pin On Value
+    PIN_OFF = 0 # Pin Off Value
+    DC_OFF = 0 # PWM Duty Cycle Off Value
+
+    # Code Key configuration
+    READ_PIN = cfg['READ_PIN'] # Pin to read key input from
+
+    # Speaker pin configuration
+    BUZZER_PIN = cfg['BUZZER_PIN'] # Pin for Buzzer
+    BUZZER_FREQ = cfg['BUZZER_FREQ'] # Frequency for Buzzer
+    BUZZER_DC = cfg['BUZZER_DC'] # Duty Cycle for Buzzer
+
+    # LCD pin configuration:
+    LCD_RS_PIN = 26
+    LCD_EN_PIN = 19
+    LCD_D4_PIN = 13
+    LCD_D5_PIN = 6
+    LCD_D6_PIN = 5
+    LCD_D7_PIN = 11
+    LCD_BACKLIGHT_PIN = 4 # not used
+
+    # Define LCD column and row size for 16x2 LCD.
+    LCD_COLUMNS = 16
+    LCD_ROWS = 2
+
+    # Initialize the LCD using the pins above.
+    lcd = LCD.Adafruit_CharLCD(LCD_RS_PIN, LCD_EN_PIN, LCD_D4_PIN, LCD_D5_PIN, LCD_D6_PIN, LCD_D7_PIN,
+                           LCD_COLUMNS, LCD_ROWS, LCD_BACKLIGHT_PIN)
+
+    # clear to initialize
+    lcd.clear()
+
+    # Messaging configuration
+    TRANSMIT_MODE_DURATION = cfg['TRANSMIT_MODE_DURATION'] # sec, duration of transmit mode input acceptance
+    TRANSMIT_MODE_THRESHOLD = cfg['TRANSMIT_MODE_THRESHOLD'] # sec, time before transmit mode starts
+
+    WORD_DELIMETER = cfg['WORD_DELIMETER'] # string separator for words
+
+    KEYPRESS_THRESHOLD = cfg['KEYPRESS_THRESHOLD'] # ms, how long a press has to be to be recognized, for bounce
+    DITDAH_THRESHOLD = cfg['DITDAH_THRESHOLD'] # ms, when a press goes from a dit to a dah
+    CHAR_THRESHOLD = cfg['CHAR_THRESHOLD'] # ms, post-release, when to cut off a letter and add it to the message
+    WORD_THRESHOLD = cfg['WORD_THRESHOLD'] # ms, post-release, when to add a space
+    MESSAGE_THRESHOLD = cfg['MESSAGE_THRESHOLD'] # ms, post-release, when a message is complete
+
+    LCD_MESSAGE_DELAY = 1.5 # seconds, amount of time to delay after an informational LCD message
+
+    NULL_TIME = time.gmtime(0) # "null" time for timestamps not in use
+
+    # Set up twitter stuff
+    # has to be after LCD stuff for error messages
     TWITTER_ENABLED = cfg['TWITTER_ENABLED']
 
     # If we are integrating with Twitter...
@@ -41,57 +93,29 @@ def main():
             # load the file
             with open("twitter_config.yml", 'r') as ymlfile:
                 twitter_cfg = yaml.load(ymlfile)
-                # Set the variable
-                print "TWITTER TRANSMISSION ENABLED, CONFIGURATION LOADED"
+
+                lcd.message("TWITTER ENABLED\nCONFIG LOADED")
+
+                # if Twitter transmission is enabled, import tweepy library
+                import tweepy
+
+                # load twitter config
+                API_KEY = twitter_cfg['API_KEY']
+                API_SECRET = twitter_cfg['API_SECRET']
+
+                ACCESS_TOKEN = twitter_cfg['ACCESS_TOKEN']
+                ACCESS_TOKEN_SECRET = twitter_cfg['ACCESS_TOKEN_SECRET']
 
         except:
             # twitter_config.yml likely does not exist
-            print "TWITTER TRANSMISSION DISABLED, ERROR LOADING CONFIGURATION"
-            print "(have you made the twitter_config.yml file yet?)"
+            lcd.message("TWITTER DISABLED\nCONFIG ERROR")
+            #print "(have you made the twitter_config.yml file yet?)"
             # set TWITTER_ENABLED false because we don't have configuration anyway
             TWITTER_ENABLED = False
+
     else:
-        print "TWITTER TRANSMISSION DISABLED"
+        lcd.message("TWITTER DISABLED")
 
-    # if Twitter transmission is enabled, import tweepy library
-    if (TWITTER_ENABLED):
-        import tweepy
-
-    # Constants
-
-    PIN_ON = 1 # Pin On Value
-    PIN_OFF = 0 # Pin Off Value
-    DC_OFF = 0 # PWM Duty Cycle Off Value
-
-    READ_PIN = cfg['READ_PIN'] # Pin to read key input from
-    BUZZER_PIN = cfg['BUZZER_PIN'] # Pin for Buzzer
-
-    BUZZER_FREQ = cfg['BUZZER_FREQ'] # Frequency for Buzzer
-    BUZZER_DC = cfg['BUZZER_DC'] # Duty Cycle for Buzzer
-
-    TRANSMIT_MODE_DURATION = cfg['TRANSMIT_MODE_DURATION'] # sec, duration of transmit mode input acceptance
-    TRANSMIT_MODE_THRESHOLD = cfg['TRANSMIT_MODE_THRESHOLD'] # sec, time before transmit mode starts
-
-    CHAR_DELIMETER = cfg['CHAR_DELIMETER'] # string separator for characters
-    WORD_DELIMETER = cfg['WORD_DELIMETER'] # string separator for words
-
-    KEYPRESS_THRESHOLD = cfg['KEYPRESS_THRESHOLD'] # ms, how long a press has to be to be recognized, for bounce
-    DITDAH_THRESHOLD = cfg['DITDAH_THRESHOLD'] # ms, when a press goes from a dit to a dah
-    CHAR_THRESHOLD = cfg['CHAR_THRESHOLD'] # ms, post-release, when to cut off a letter and add it to the message
-    WORD_THRESHOLD = cfg['WORD_THRESHOLD'] # ms, post-release, when to add a space
-    MESSAGE_THRESHOLD = cfg['MESSAGE_THRESHOLD'] # ms, post-release, when a message is complete
-
-    NULL_TIME = time.gmtime(0) # "null" time for timestamps not in use
-
-    # Twitter Constants
-
-    if (TWITTER_ENABLED):
-
-        API_KEY = twitter_cfg['API_KEY']
-        API_SECRET = twitter_cfg['API_SECRET']
-
-        ACCESS_TOKEN = twitter_cfg['ACCESS_TOKEN']
-        ACCESS_TOKEN_SECRET = twitter_cfg['ACCESS_TOKEN_SECRET']
 
     # Variables
 
@@ -100,8 +124,8 @@ def main():
 
     char_buffer = "" # storage for current character, start with blank
     word_buffer = "" # storage for current word, start with blank
-    morse_buffer = "" # storage for morse message, start with blank
-    text_output = "" # storage for text message
+    message_buffer = "" # storage for morse message, start with blank
+    message_buffer = "" # storage for text message
 
     # modes: input, transmit
     mode = "input" # default to inputs
@@ -118,8 +142,10 @@ def main():
 
     try:
 
+        lcd.clear()
         # just so we know something's happening
-        print "LISTENING FOR TAP"
+        lcd.message("LISTENING")
+        #lcd.show_cursor(true) # show blinking cursor while we wait
 
         # main loop
         while True:
@@ -165,12 +191,16 @@ def main():
                             if (press_duration < DITDAH_THRESHOLD):
 
                                 char_buffer += "."
-                                print "dot"
+
+                                lcd.clear() # clear it
+                                lcd.message(char_buffer + "\n" + message_buffer + ' ' + word_buffer)
 
                             elif (press_duration >= DITDAH_THRESHOLD):
 
                                 char_buffer += "-"
-                                print "dash"
+
+                                lcd.clear() # clear it
+                                lcd.message(char_buffer + "\n" + message_buffer + ' ' + word_buffer)
 
                     else: # if we're waiting for input
 
@@ -192,10 +222,13 @@ def main():
                                         if (len(char_buffer) > 0):
 
                                             # add char to word, add delimeter if necessary, clear char buffer
-                                            if (len(word_buffer) > 0): word_buffer += CHAR_DELIMETER
-                                            word_buffer += char_buffer
-                                            print "CHARACTER ADDED: " + char_buffer
+                                            char_translated = morse_translate(char_buffer)
+                                            word_buffer += char_translated
+
+                                            lcd.clear()
+                                            lcd.message("CHAR ADD: " + char_translated + "\n" + message_buffer + ' ' + word_buffer)
                                             char_buffer = ""
+                                            char_translated = ""
 
                                 else:
 
@@ -203,31 +236,36 @@ def main():
                                     if (len(word_buffer) > 0):
 
                                         # add word to message, add delimeter if necessary, clear word buffer
-                                        if(len(morse_buffer) > 0): morse_buffer += (WORD_DELIMETER)
+                                        if(len(message_buffer) > 0): message_buffer += (WORD_DELIMETER)
 
-                                        morse_buffer += word_buffer
-                                        print "WORD ADDED: " + word_buffer
+                                        message_buffer += word_buffer
+
+                                        lcd.clear()
+                                        lcd.message("WORD ADD: \n" + word_buffer + "\n" + message_buffer + ' ' + word_buffer)
                                         word_buffer = ""
 
                             else:
 
                                 # if we have a message
-                                if (len(morse_buffer) > 0):
+                                if (len(message_buffer) > 0):
 
-                                    print "MESSAGE COMPLETED: " + morse_buffer
-                                    text_output = translate_morse_code_string(morse_buffer)
-
-                                    print "TEXT: " + text_output
-                                    morse_buffer = "" # reset string
+                                    #print "TEXT: " + message_buffer
+                                    lcd.clear()
+                                    lcd.message("MESSAGE COMPLETE\n" + message_buffer)
+                                    time.sleep(LCD_MESSAGE_DELAY)
 
                                     # if we have twitter enabled
                                     if (TWITTER_ENABLED):
-                                        print "TAP TO CONFIRM TRANSMISSION TO TWITTER"
+                                        lcd.clear()
+                                        lcd.message("TAP TO CONFIRM\nTWITTER TRANSMIT")
                                         # wait a little bit...
                                         time.sleep(TRANSMIT_MODE_THRESHOLD)
                                         # then switch to transmit mode
                                         transmit_mode_start = time.time()
                                         mode = "transmit"
+                                    else:
+                                        # stay in input mode
+                                        message_buffer = "" # reset string
 
             # transmit mode for sending to twitter
             # this mode will only get switched to if TWITTER_ENABLED is true
@@ -239,43 +277,59 @@ def main():
                     # if we have a tap
                     if (io.read(READ_PIN) == PIN_ON):
 
-                        print "TRANSMITTING..."
+                        lcd.clear()
+                        #lcd.show_cursor(True)
+                        lcd.message("TRANSMITTING...")
 
                         try:
                             # Send to Twitter!
                             auth = tweepy.OAuthHandler(API_KEY, API_SECRET)
                             auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
                             api = tweepy.API(auth)
-                            twitter_status = api.update_status(text_output)
-                            print "TRANSMISSION SUCCESSFUL, ID#" + str(twitter_status.id)
+                            twitter_status = api.update_status(message_buffer)
+                            lcd.clear()
+                            lcd.message("TRANSMIT SUCCESS\n" + str(twitter_status.id))
+                            time.sleep(LCD_MESSAGE_DELAY)
 
                         # Catch any twitter errors and tell the user
                         except tweepy.TweepError as e:
-                            print "TRANSMISSION ERROR: " + str(e.message[0]['message'])
+                            lcd.clear()
+                            lcd.message("TRANSMIT ERROR:\n" + str(e.message[0]['message']))
+                            print str(e.message[0]['message'])
+                            time.sleep(LCD_MESSAGE_DELAY)
 
                         # Catch any other errors
                         except:
-                            print "TRANSMISSION ERROR, CHECK CONFIGURATION FILES"
+                            lcd.clear()
+                            lcd.message("TRANSMIT ERROR\nCHECK CONFIG")
+                            time.sleep(LCD_MESSAGE_DELAY)
 
                         # reset everything
-                        text_output = "" # reset string
+                        message_buffer = "" # reset string
                         transmit_mode_start = NULL_TIME
-                        print "RETURNING TO INPUT MODE"
-                        print "LISTENING FOR TAP"
+                        lcd.clear()
+                        lcd.message("RETURNING TO\nINPUT MODE")
+                        time.sleep(LCD_MESSAGE_DELAY)
+                        lcd.clear()
+                        lcd.message("LISTENING")
                         mode = "input" # go back into input mode
                 else:
 
                     # reset everything
-                    text_output = "" # reset string
+                    message_buffer = "" # reset string
                     transmit_mode_start = NULL_TIME # reset transmit start
-                    print "TRANSMIT INTERVAL ENDED, RETURNING TO INPUT MODE"
-                    print "LISTENING FOR TAP"
+                    lcd.clear()
+                    lcd.message("TRANSMIT SKIPPED\nRETURN TO INPUT")
+                    time.sleep(LCD_MESSAGE_DELAY)
+                    lcd.clear()
+                    lcd.message("LISTENING")
                     mode = "input" # go back into input mode
 
 
     # quit on a break
     except KeyboardInterrupt:
-        io.stop()
+        io.stop() # cleanup pins
+        lcd.clear() # clear the LCD
 
 
 # ------------------------------------------------------------------------------
@@ -283,7 +337,13 @@ def main():
 # delimited with spaces for characters, and / for words
 # format example "HELLO WORLD": .... . .-.. .-.. --- / .-- --- .-. .-.. -..
 
-def translate_morse_code_string(code_string):
+def morse_translate_string(code_string):
+
+    if len(code_string) == 0:
+        return ''
+
+    # split on spaces for chars, words delimiters will become spaces
+    characters = code_string.split(" ")
 
     morseAlphabet = {
         "/": " ", ".-": "A", "-.-.": "C", "-...": "B", ".": "E", "-..": "D",
@@ -295,15 +355,35 @@ def translate_morse_code_string(code_string):
         "-....": "6", "--...": "7", "---..": "8", "----.": "9", "-----": "0"
     }
 
-    # split on spaces for chars, words delimiters will become spaces
-    characters = code_string.split(" ")
-
     # this next nearly unreadable line does the following:
     # join together returned values from the morseAlphabet list using the characters list as keys
     # if the key is not present in morseAlphabet, return a "?" to join into the string instead
     message = ''.join(morseAlphabet[key] if (key in morseAlphabet) else "?" for key in characters)
 
     return message
+
+# ------------------------------------------------------------------------------
+# Morse Code char translator
+
+def morse_translate(char):
+
+    if len(char) == 0:
+        return ''
+
+    morseAlphabet = {
+        "/": " ", ".-": "A", "-.-.": "C", "-...": "B", ".": "E", "-..": "D",
+        "--.": "G", "..-.": "F", "..": "I", "....": "H", "-.-": "K", ".---": "J",
+        "--":  "M", ".-..": "L","---": "O", "-.": "N", "--.-": "Q", ".--.": "P",
+        "...": "S", ".-.": "R", "..-": "U", "-": "T", ".--": "W", "...-": "V",
+        "-.--": "Y", "-..-": "X", "--..": "Z",
+        ".----": "1", "..---": "2", "...--": "3", "....-": "4", ".....": "5",
+        "-....": "6", "--...": "7", "---..": "8", "----.": "9", "-----": "0"
+    }
+
+    if char in morseAlphabet:
+        return morseAlphabet[char]
+    else:
+        return '?'
 
 
 # ------------------------------------------------------------------------------
