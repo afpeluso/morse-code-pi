@@ -95,6 +95,7 @@ def main():
                 twitter_cfg = yaml.load(ymlfile)
 
                 lcd.message("TWITTER ENABLED\nCONFIG LOADED")
+                time.sleep(LCD_MESSAGE_DELAY)
 
                 # if Twitter transmission is enabled, import tweepy library
                 import tweepy
@@ -109,13 +110,14 @@ def main():
         except:
             # twitter_config.yml likely does not exist
             lcd.message("TWITTER DISABLED\nCONFIG ERROR")
-            #print "(have you made the twitter_config.yml file yet?)"
+            time.sleep(LCD_MESSAGE_DELAY)
+
             # set TWITTER_ENABLED false because we don't have configuration anyway
             TWITTER_ENABLED = False
 
     else:
         lcd.message("TWITTER DISABLED")
-
+        time.sleep(LCD_MESSAGE_DELAY)
 
     # Variables
 
@@ -264,8 +266,13 @@ def main():
                                         transmit_mode_start = time.time()
                                         mode = "transmit"
                                     else:
-                                        # stay in input mode
                                         message_buffer = "" # reset string
+                                        lcd.clear()
+                                        lcd.message("TWITTER DISABLED\nRETURN TO INPUT")
+                                        time.sleep(LCD_MESSAGE_DELAY)
+                                        lcd.clear()
+                                        lcd.message("LISTENING")
+                                        # stay in input mode
 
             # transmit mode for sending to twitter
             # this mode will only get switched to if TWITTER_ENABLED is true
