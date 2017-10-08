@@ -14,6 +14,7 @@
 
 import pigpio # Using pigpio instead of RPi.GPIO for better PWM control
 import time
+import os
 import math
 import yaml # PyYaml
 # tweepy import handled below conditionally, 
@@ -27,8 +28,11 @@ def main():
 
     # Configuration Files
 
+    # get the path of the script so we can call config files
+    filepath = os.path.dirname(os.path.abspath(__file__))
+
     # load morse code configuration
-    with open("config.yml", 'r') as ymlfile:
+    with open(filepath + "/config.yml", 'r') as ymlfile:
         cfg = yaml.load(ymlfile)
 
     # Constants
@@ -91,9 +95,10 @@ def main():
         # this stuff is in a separate twitter config because it's sensitive
         try:
             # load the file
-            with open("twitter_config.yml", 'r') as ymlfile:
+            with open(filepath + "/twitter_config.yml", 'r') as ymlfile:
                 twitter_cfg = yaml.load(ymlfile)
 
+                lcd.clear()
                 lcd.message("TWITTER ENABLED\nCONFIG LOADED")
                 time.sleep(LCD_MESSAGE_DELAY)
 
@@ -109,6 +114,7 @@ def main():
 
         except:
             # twitter_config.yml likely does not exist
+            lcd.clear()
             lcd.message("TWITTER DISABLED\nCONFIG ERROR")
             time.sleep(LCD_MESSAGE_DELAY)
 
@@ -116,6 +122,7 @@ def main():
             TWITTER_ENABLED = False
 
     else:
+        lcd.clear()
         lcd.message("TWITTER DISABLED")
         time.sleep(LCD_MESSAGE_DELAY)
 
@@ -228,7 +235,7 @@ def main():
                                             word_buffer += char_translated
 
                                             lcd.clear()
-                                            lcd.message("CHAR+: " + char_translated + "\n" + (message_buffer + WORD_DELIMETER + word_buffer).strip())
+                                            lcd.message("\n" + (message_buffer + WORD_DELIMETER + word_buffer).strip())
                                             char_buffer = ""
                                             char_translated = ""
 
@@ -242,7 +249,7 @@ def main():
                                         message_buffer += word_buffer
 
                                         lcd.clear()
-                                        lcd.message("WORD+: " + word_buffer + "\n" + (message_buffer).strip())
+                                        lcd.message("!\n" + (message_buffer).strip())
 
                                         word_buffer = ""
 
